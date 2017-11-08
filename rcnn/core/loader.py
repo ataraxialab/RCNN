@@ -237,7 +237,7 @@ class FPNAnchorLoader(mx.io.DataIter):
 class AnchorLoaderFPN(mx.io.DataIter):
     def __init__(self, feat_sym, roidb, batch_size=1, shuffle=False, ctx=None, work_load_list=None,
                  feat_stride=[4,8,16,32], anchor_scales=(16), anchor_ratios=(0.5, 1, 2), allowed_border=0,
-                 aspect_grouping=False,use_data_augmentation=False):
+                 aspect_grouping=False,use_data_augmentation=False, relative_path=""):
         """
         This Iter will provide roi data to Fast R-CNN network
         :param feat_sym: to infer shape of assign_output
@@ -247,6 +247,8 @@ class AnchorLoaderFPN(mx.io.DataIter):
         :param ctx: list of contexts
         :param work_load_list: list of work load
         :param aspect_grouping: group images with similar aspects
+        :param use_data_augmentation: bool
+        :param relative_path: sample relative base path
         :return: AnchorLoader
         """
         super(AnchorLoaderFPN, self).__init__()
@@ -266,6 +268,7 @@ class AnchorLoaderFPN(mx.io.DataIter):
         self.allowed_border = allowed_border
         self.aspect_grouping = aspect_grouping
         self.use_data_augmentation = use_data_augmentation
+        self.relative_path = relative_path
 
         # infer properties from roidb
         self.size = len(roidb)
@@ -386,7 +389,7 @@ class AnchorLoaderFPN(mx.io.DataIter):
         for islice in slices:
             iroidb = [roidb[i] for i in range(islice.start, islice.stop)]
             #print('get_rpn_batch')
-            data, label = get_rpn_batch(iroidb, self.use_data_augmentation)
+            data, label = get_rpn_batch(iroidb, self.use_data_augmentation, self.relative_path)
             data_list.append(data)
             label_list.append(label)
 	
@@ -452,11 +455,11 @@ class AnchorLoaderFPN(mx.io.DataIter):
         #print(len(anchors))
         return anchors
 
-    
+
 class AnchorLoader(mx.io.DataIter):
     def __init__(self, feat_sym, roidb, batch_size=1, shuffle=False, ctx=None, work_load_list=None,
                  feat_stride=16, anchor_scales=(8, 16, 32), anchor_ratios=(0.5, 1, 2), allowed_border=0,
-                 aspect_grouping=False, use_data_augmentation=False):
+                 aspect_grouping=False, use_data_augmentation=False, relative_path=""):
         """
         This Iter will provide roi data to Fast R-CNN network
         :param feat_sym: to infer shape of assign_output
@@ -466,6 +469,8 @@ class AnchorLoader(mx.io.DataIter):
         :param ctx: list of contexts
         :param work_load_list: list of work load
         :param aspect_grouping: group images with similar aspects
+        :param use_data_augmentation: bool
+        :param relative_path: sample relative base path
         :return: AnchorLoader
         """
         super(AnchorLoader, self).__init__()
@@ -485,6 +490,7 @@ class AnchorLoader(mx.io.DataIter):
         self.allowed_border = allowed_border
         self.aspect_grouping = aspect_grouping
         self.use_data_augmentation = use_data_augmentation
+        self.relative_path = relative_path
 
         # infer properties from roidb
         self.size = len(roidb)
@@ -593,7 +599,7 @@ class AnchorLoader(mx.io.DataIter):
         label_list = []
         for islice in slices:
             iroidb = [roidb[i] for i in range(islice.start, islice.stop)]
-            data, label = get_rpn_batch(iroidb, self.use_data_augmentation)
+            data, label = get_rpn_batch(iroidb, self.use_data_augmentation, self.relative_path)
             data_list.append(data)
             label_list.append(label)
 

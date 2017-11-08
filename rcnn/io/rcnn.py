@@ -44,15 +44,17 @@ def get_rcnn_testbatch(roidb):
     return data, label, im_info
 
 
-def get_rcnn_batch(roidb, use_data_augmentation=False):
+def get_rcnn_batch(roidb, use_data_augmentation=False, relative_path=""):
     """
     return a dict of multiple images
     :param roidb: a list of dict, whose length controls batch size
     ['images', 'flipped'] + ['gt_boxes', 'boxes', 'gt_overlap'] => ['bbox_targets']
+    :param use_data_augmentation: bool
+    :param relative_path: sample relative base path
     :return: data, label
     """
     num_images = len(roidb)
-    imgs, roidb = get_image(roidb, use_data_augmentation)
+    imgs, roidb = get_image(roidb, use_data_augmentation, relative_path)
     im_array = tensor_vstack(imgs)
 
     assert config.TRAIN.BATCH_ROIS % config.TRAIN.BATCH_IMAGES == 0, \
@@ -174,4 +176,3 @@ def sample_rois(rois, fg_rois_per_image, rois_per_image, num_classes,
         expand_bbox_regression_targets(bbox_target_data, num_classes)
 
     return rois, labels, bbox_targets, bbox_weights
-

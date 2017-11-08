@@ -6,10 +6,12 @@ from PIL import Image, ImageEnhance
 from ..config import config
 
 
-def get_image(roidb, use_data_augmentation=False):
+def get_image(roidb, use_data_augmentation=False, relative_path=""):
     """
     preprocess image and return processed roidb
     :param roidb: a list of roidb
+    :param use_data_augmentation: bool
+    :param relative_path: sample relative base path
     :return: list of img as in mxnet format
     roidb add new item['im_info']
     0 --- x (width, second dim of im)
@@ -21,8 +23,11 @@ def get_image(roidb, use_data_augmentation=False):
     processed_roidb = []
     for i in range(num_images):
         roi_rec = roidb[i]
-        assert os.path.exists(roi_rec['image']), '%s does not exist'.format(roi_rec['image'])
-        im = cv2.imread(roi_rec['image'])
+        image_path = roi_rec['image']
+        if not os.path.isabs(image_path):
+            image_path = os.path.abspath(os.path.join(relative_path, image_path))
+        assert os.path.exists(image_path), '%s does not exist'.format(image_path)
+        im = cv2.imread(image_path)
         if roidb[i]['flipped']:
             im = im[:, ::-1, :]
         new_rec = roi_rec.copy()
